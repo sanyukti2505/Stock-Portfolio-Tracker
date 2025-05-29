@@ -1,4 +1,3 @@
-#Stock Portfolio Tracker
 import yfinance as yf  # Used to fetch stock data from Yahoo Finance
 import pandas as pd# Used for creating and manipulating DataFrames
 import matplotlib.pyplot as plt  # Used for visualizing data with charts
