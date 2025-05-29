@@ -1,0 +1,78 @@
+#Stock Portfolio Tracker
+import yfinance as yf  # Used to fetch stock data from Yahoo Finance
+import pandas as pd# Used for creating and manipulating DataFrames
+import matplotlib.pyplot as plt  # Used for visualizing data with charts
+
+def fetch_stock_price(ticker):
+    """
+    Fetches the latest closing price for the given stock ticker.
+    """
+    try:
+        stock = yf.Ticker(ticker)# Create a Ticker object for the given stock
+        price = stock.history(period="1d")['Close'].iloc[-1]# Get the latest closing price
+        return price
+    except Exception as e:
+        # Handle any errors that occur during the API call
+        print(f"Error fetching data for {ticker}: {e}")
+        return None
+
+def main():
+    print("Welcome to the Stock Portfolio Tracker!")
+    portfolio = {}# Dictionary to store ticker symbols and number of shares
+
+    # Gather user input for stock holdings
+    while True:
+        ticker = input("Enter stock ticker (e.g., AAPL) or 'done' to finish: ").upper()
+        if ticker == 'DONE':
+            break  # Exit the loop if user is done entering stocks
+        try:
+            shares = float(input(f"Enter number of shares for {ticker}: "))
+            portfolio[ticker] = shares # Add the ticker and share count to the portfolio
+        except ValueError:
+            print("Please enter a valid number for shares.")
+        # If no stocks were entered, exit the program
+    if not portfolio:
+        print("No stocks entered. Exiting the tracker.")
+        return
+
+    # Fetch current prices and calculate values
+    portfolio_data = []# List to hold detailed stock data
+    total_value = 0# Variable to accumulate the total portfolio value
+
+    # Fetch current prices and calculate value for each stock
+
+    for ticker, shares in portfolio.items():
+        price = fetch_stock_price(ticker) # Get the current stock price
+        if price is not None:
+            value = price * shares# Calculate total value for the stock
+            total_value += value # Add to total portfolio value
+            # Append stock details to the portfolio data list
+            portfolio_data.append({
+                'Ticker': ticker,
+                'Shares': shares,
+                'Price': round(price, 2),
+                'Value': round(value, 2)
+            })
+
+    # Display portfolio summary
+    df = pd.DataFrame(portfolio_data)
+    print("\nYour Portfolio:")
+    print(df.to_string(index=False))
+    print(f"\nTotal Portfolio Value: ₹{round(total_value, 2)}")
+
+    # Visualize portfolio distribution
+    if not df.empty:
+        plt.figure(figsize=(8, 6)) # Set the size of the chart
+        plt.pie(
+            df['Value'], 
+            labels=df['Ticker'],
+            autopct='%1.1f%%',# Show percentage on the chart
+            startangle=140)# Rotate chart for better appearance
+        plt.title('Portfolio Distribution')
+        plt.axis('equal')# Ensures the pie chart is a circle
+        plt.show()
+
+# Entry point of the script
+
+if __name__ == "__main__":
+    main()
